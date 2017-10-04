@@ -11,7 +11,7 @@ module.exports.init = (rScriptPath, port = 50595) => {
 
   // Return worker class
   return worker(rScriptPath, port);
-}
+};
 
 // Get all currently registered workers
 module.exports.getWorkers = () => server.getWorkers();

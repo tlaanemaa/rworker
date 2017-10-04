@@ -56,7 +56,7 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
 
   // Emit event to R
   emit(name, data) {
-    
+
   }
 
   // Kill this worker
