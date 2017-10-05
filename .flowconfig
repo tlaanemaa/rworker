@@ -1,6 +1,12 @@
 [include]
+
 [ignore]
+.*/lib/*
+
 [libs]
+
 [lints]
+
 [options]
+
 [version]
