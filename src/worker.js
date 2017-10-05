@@ -1,6 +1,6 @@
 // @flow
 
-const EventEmitter = require('events');
+const { EventEmitter } = require('events');
 const path = require('path');
 const { spawn } = require('child_process');
 const { uid, emitOn } = require('./util');

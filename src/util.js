@@ -1,4 +1,4 @@
-const { emit } = require('events');
+const { emit } = require('events').EventEmitter.prototype;
 
 // A simple UID creation function
 let lastUID = -1;
