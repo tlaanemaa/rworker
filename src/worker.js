@@ -41,13 +41,13 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
 
       this.process.on('exit', (code) => {
         this.alive = false;
-        this.kill();
+        this.cleanup();
         emitOn(this, 'exit', code);
       });
     });
   }
 
-  // Attach a socket to worker
+  // Attach a socket to worker. Only used by socket class to attach itself
   attachSocket(socket) {
     if (!this.socket) {
       this.socket = socket;
@@ -55,7 +55,7 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
     }
   }
 
-  // Detach socket from worker
+  // Detach socket from worker. Only used by socket class to detach itself
   detachSocket() {
     if (this.socket) {
       this.socket = null;
@@ -65,9 +65,20 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
 
   // Kill this worker
   kill(signal) {
-    this.dettachSocket();
     if (this.alive) {
+      this.alive = false;
       this.process.kill(signal);
+    }
+  }
+
+  // Clean up this worker, used after it has been killed
+  cleanup() {
+    if (!this.alive) {
+      if (this.socket) {
+        this.socket.destroy();
+      }
+      this.process = null;
+      workerList.remove(this);
     }
   }
 };
