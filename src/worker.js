@@ -56,7 +56,7 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
   }
 
   // Detach socket from worker
-  dettachSocket() {
+  detachSocket() {
     if (this.socket) {
       this.socket = null;
       emitOn(this, 'socket-detached', null);
