@@ -1,6 +1,7 @@
 const fs = require('fs');
 const server = require('./server');
 const worker = require('./worker');
+const workerList = require('./worker_list');
 
 module.exports.init = (rScriptPath, port = 50595) => {
   // Check if given rScriptPath exists
@@ -14,4 +15,4 @@ module.exports.init = (rScriptPath, port = 50595) => {
 };
 
 // Get all currently registered workers
-module.exports.getWorkers = () => server.getWorkers();
+module.exports.workerList = workerList;
