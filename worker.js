@@ -1,3 +1,5 @@
+// @flow
+
 const EventEmitter = require('events');
 const emit = EventEmitter.prototype.emit;
 const path = require('path');
