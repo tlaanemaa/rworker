@@ -18,5 +18,5 @@ class WorkerList {
   }
 }
 
-
-module.exports = new WorkerList();
+const workerList = new WorkerList();
+export default workerList;

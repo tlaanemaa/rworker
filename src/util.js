@@ -1,17 +1,19 @@
-const { emit } = require('events').EventEmitter.prototype;
+import { EventEmitter } from 'events';
+
+const { emit } = EventEmitter.prototype;
 
 // A simple UID creation function
 let lastUID = -1;
-module.exports.uid = () => {
+export const uid = () => {
   lastUID += 1;
   return `w${Math.floor(46656 + (Math.random() * 1632959)).toString(36)}${lastUID.toString(36)}`;
 };
 
 // Emit an event on an object
-module.exports.emitOn = (object, name, data) => emit.call(object, name, data);
+export const emitOn = (object, name, data) => emit.call(object, name, data);
 
 // Break socket message blobs into messages
-module.exports.forEachMessage = (messages, callback, errorCallback) => {
+export const forEachMessage = (messages, callback, errorCallback) => {
   const blocks = messages.split('\n');
   // Loop over the resulting blocks ignoring the empty ones
   for (let i = 0, n = blocks.length; i < n; i += 1) {

@@ -1,16 +1,16 @@
 // @flow
 
-const { EventEmitter } = require('events');
-const path = require('path');
-const { spawn } = require('child_process');
-const { uid, emitOn } = require('./util');
-const workerList = require('./worker_list');
-const server = require('./server');
+import { EventEmitter } from 'events';
+import path from 'path';
+import { spawn } from 'child_process';
+import { uid, emitOn } from './util';
+import workerList from './worker_list';
+import { whenReady } from './server';
 
 const rFilePath = path.resolve('./worker.r');
 
 // New worker class
-module.exports = (rWorkerPath, port) => class R extends EventEmitter {
+export default (rWorkerPath, port) => class R extends EventEmitter {
   constructor(workerFile) {
     super();
 
@@ -24,7 +24,7 @@ module.exports = (rWorkerPath, port) => class R extends EventEmitter {
     workerList.add(this);
 
     // Wait for the server to get ready
-    server.whenReady(() => {
+    whenReady(() => {
       // Start child process
       this.process = spawn(rWorkerPath, [rFilePath, workerFile, this.uid, port]);
 

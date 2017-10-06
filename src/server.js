@@ -1,5 +1,5 @@
-const net = require('net');
-const handleSocket = require('./socket_handler');
+import net from 'net';
+import handleSocket from './socket_handler';
 
 // A queue for startup events while server is not yet ready
 const startUpQueue = [];
@@ -31,9 +31,9 @@ server.on('listening', () => {
 });
 
 // Start the local socket server
-module.exports.listen = port => server.listen(port);
+export const listen = port => server.listen(port);
 
 // Check if server is listening
-module.exports.whenReady = callback => (
+export const whenReady = callback => (
   server.listening ? callback() : startUpQueue.push(callback)
 );

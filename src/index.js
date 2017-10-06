@@ -1,18 +1,18 @@
-const fs = require('fs');
-const server = require('./server');
-const worker = require('./worker');
-const workerList = require('./worker_list');
+import fs from 'fs';
+import { listen } from './server';
+import worker from './worker';
+import workerList from './worker_list';
 
-module.exports.init = (rScriptPath, port = 50595) => {
+export default (rScriptPath, port = 50595) => {
   // Check if given rScriptPath exists
   fs.accessSync(rScriptPath, fs.constants.X_OK);
 
   // Start socket server
-  server.listen(port);
+  listen(port);
 
   // Return worker class
   return worker(rScriptPath, port);
 };
 
 // Get all currently registered workers
-module.exports.workerList = workerList;
+export { workerList };

@@ -1,5 +1,5 @@
-const workerList = require('./worker_list');
-const { emitOn, forEachMessage } = require('./util');
+import workerList from './worker_list';
+import { emitOn, forEachMessage } from './util';
 
 class Socket {
   constructor(baseSocket) {
@@ -73,4 +73,4 @@ class Socket {
 }
 
 // Exposed method for handling sockets
-module.exports = socket => new Socket(socket);
+export default socket => new Socket(socket);
