@@ -1,17 +1,25 @@
 // @flow
 
-import { EventEmitter } from 'events';
+import EventEmitter from 'events';
 import path from 'path';
 import { spawn } from 'child_process';
+import type { ChildProcess } from 'child_process';
 import { uid, emitOn } from './util';
 import workerList from './worker_list';
 import { whenReady } from './server';
+import type { SocketWrapper } from './socket_handler';
 
 const rFilePath = path.resolve('./worker.r');
 
 // New worker class
-export default (rWorkerPath, port) => class R extends EventEmitter {
-  constructor(workerFile) {
+export default (rWorkerPath: string, port: number) => class R extends EventEmitter {
+  workerFile: string;
+  alive: boolean;
+  socket: SocketWrapper | null;
+  uid: string;
+  process: ChildProcess | null;
+
+  constructor(workerFile: string) {
     super();
 
     // Initial setup
@@ -26,29 +34,35 @@ export default (rWorkerPath, port) => class R extends EventEmitter {
     // Wait for the server to get ready
     whenReady(() => {
       // Start child process
-      this.process = spawn(rWorkerPath, [rFilePath, workerFile, this.uid, port]);
+      this.process = spawn(rWorkerPath, [rFilePath, workerFile, this.uid, String(port)]);
 
-      // Set process events
-      this.process.stdout.on(
-        'data',
-        data => emitOn(this, 'stdout', data.toString())
-      );
+      // Set process events (all this weird if stuff is to make flow happy)
+      if (this.process) {
+        this.process.stdout.on(
+          'data',
+          data => emitOn(this, 'stdout', data.toString())
+        );
+      }
 
-      this.process.stderr.on(
-        'data',
-        data => emitOn(this, 'stderr', data.toString())
-      );
+      if (this.process) {
+        this.process.stderr.on(
+          'data',
+          data => emitOn(this, 'stderr', data.toString())
+        );
+      }
 
-      this.process.on('exit', (code) => {
-        this.alive = false;
-        this.cleanup();
-        emitOn(this, 'exit', code);
-      });
+      if (this.process) {
+        this.process.on('exit', (code) => {
+          this.alive = false;
+          this.cleanup();
+          emitOn(this, 'exit', code);
+        });
+      }
     });
   }
 
   // Attach a socket to worker. Only used by socket class to attach itself
-  attachSocket(socket) {
+  attachSocket(socket: SocketWrapper): void {
     if (!this.socket) {
       this.socket = socket;
       emitOn(this, 'socket-attached', null);
@@ -56,7 +70,7 @@ export default (rWorkerPath, port) => class R extends EventEmitter {
   }
 
   // Detach socket from worker. Only used by socket class to detach itself
-  detachSocket() {
+  detachSocket(): void {
     if (this.socket) {
       this.socket = null;
       emitOn(this, 'socket-detached', null);
@@ -64,15 +78,18 @@ export default (rWorkerPath, port) => class R extends EventEmitter {
   }
 
   // Kill this worker
-  kill(signal) {
-    if (this.alive) {
+  kill(signal: string): void {
+    if (
+      this.alive &&
+      this.process
+    ) {
       this.alive = false;
       this.process.kill(signal);
     }
   }
 
   // Clean up this worker, used after it has been killed
-  cleanup() {
+  cleanup(): void {
     if (!this.alive) {
       if (this.socket) {
         this.socket.destroy();

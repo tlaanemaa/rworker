@@ -1,8 +1,15 @@
+// @flow
+
+import type { Socket } from 'net';
 import workerList from './worker_list';
+import type { R } from './worker';
 import { emitOn, forEachMessage } from './util';
 
-class Socket {
-  constructor(baseSocket) {
+class SocketWrapper {
+  baseSocket: Socket;
+  worker: R;
+
+  constructor(baseSocket: Socket) {
     this.baseSocket = baseSocket;
     this.worker = null;
 
@@ -73,4 +80,5 @@ class Socket {
 }
 
 // Exposed method for handling sockets
-export default socket => new Socket(socket);
+export default (socket: Socket) => new SocketWrapper(socket);
+export type { SocketWrapper };
