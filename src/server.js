@@ -1,8 +1,8 @@
 // @flow
 
 import net from 'net';
+import type { Socket } from 'net';
 import { attachHandlers } from './socket';
-import type { Socket } from './socket';
 
 // A queue for startup events while server is not yet ready
 const startUpQueue = [];

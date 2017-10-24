@@ -1,16 +1,12 @@
 // @flow
 
+import type { Socket } from 'net';
 import workerList from './worker_list';
+import type { R } from './worker';
 import { emitOn } from './util';
 
 type MessageHandler = (name: string, data: {}) => void;
 type ErrorHandler = (err: Error) => void;
-export type Socket = {
-  remoteAddress: string,
-  workerUID: string,
-  destroy: () => void,
-  on: (name: string, callback: (data: any) => void) => void
-};
 
 // Break socket message strings into individual messages
 export const forEachMessage = (
@@ -34,24 +30,21 @@ export const forEachMessage = (
   });
 };
 
-// Error and end message handler
-function handleEndAndError(socket: Socket) {
-  const worker = socket.workerUID ? workerList.get(socket.workerUID) : null;
-  if (worker) {
-    worker.detachSocket();
-  }
-  socket.destroy();
-}
+// A function to attach relevant handlers to the socket
+export const attachHandlers = (socket: Socket): void => {
+  // This socket's worker
+  let worker: R = null;
 
-// Data handler
-function handleData(
-  socket: Socket,
-  dataString: string
-): void {
-  forEachMessage(dataString, (name: string, data: any) => {
-    // Get a reference to this socket's attached worker
-    const worker = socket.workerUID ? workerList.get(socket.workerUID) : null;
+  // Handler for error and end cases
+  const destroySocket = (): void => {
+    if (worker) {
+      worker.detachSocket();
+    }
+    socket.destroy();
+  };
 
+  // Handler for data
+  const handleData = (dataString): void => forEachMessage(dataString, (name: string, data: any) => {
     if (worker) {
       // If this socket does have a worker, raise the msaage as an event on it
       emitOn(worker, name, data);
@@ -63,28 +56,19 @@ function handleData(
       const requestedWorker = workerList.get(data);
       if (requestedWorker) {
         requestedWorker.attachSocket(socket);
+        worker = requestedWorker;
+      } else {
+        // Destroy all sockets trying to identify with an unknown worker
+        socket.destroy();
       }
     } else {
       // Destroy all unknown sockets that arent trying to identify
       socket.destroy();
     }
   });
-}
 
-// A function to attach relevant handlers to the socket
-export const attachHandlers = (socket: Socket): void => {
-  socket.on(
-    'end',
-    () => handleEndAndError(socket)
-  );
-
-  socket.on(
-    'error',
-    () => handleEndAndError(socket)
-  );
-
-  socket.on(
-    'data',
-    data => handleData(socket, data)
-  );
+  // Attach handlers
+  socket.on('end', destroySocket);
+  socket.on('error', destroySocket);
+  socket.on('data', handleData);
 };

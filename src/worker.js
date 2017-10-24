@@ -4,10 +4,10 @@ import EventEmitter from 'events';
 import path from 'path';
 import { spawn } from 'child_process';
 import type { ChildProcess } from 'child_process';
+import type { Socket } from 'net';
 import { uid, emitOn } from './util';
 import workerList from './worker_list';
 import { whenReady } from './server';
-import type { Socket } from './socket';
 
 const rFilePath = path.resolve('./worker.r');
 

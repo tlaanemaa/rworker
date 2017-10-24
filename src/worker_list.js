@@ -21,11 +21,6 @@ class WorkerList {
   remove(worker: R): void {
     delete this.workers[worker.uid];
   }
-
-  // Check if a given worker exists
-  exists(uid: string): boolean {
-    return this.workers[uid] !== 'undefined';
-  }
 }
 
 const workerList = new WorkerList();
