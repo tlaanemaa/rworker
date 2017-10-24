@@ -7,7 +7,7 @@ import type { ChildProcess } from 'child_process';
 import { uid, emitOn } from './util';
 import workerList from './worker_list';
 import { whenReady } from './server';
-import type { SocketWrapper } from './socket_handler';
+import type { Socket } from './socket';
 
 const rFilePath = path.resolve('./worker.r');
 
@@ -15,7 +15,7 @@ const rFilePath = path.resolve('./worker.r');
 export default (rWorkerPath: string, port: number) => class R extends EventEmitter {
   workerFile: string;
   alive: boolean;
-  socket: SocketWrapper | null;
+  socket: Socket | null;
   uid: string;
   process: ChildProcess | null;
 
@@ -62,7 +62,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Attach a socket to worker. Only used by socket class to attach itself
-  attachSocket(socket: SocketWrapper): void {
+  attachSocket(socket: Socket): void {
     if (!this.socket) {
       this.socket = socket;
       emitOn(this, 'socket-attached', null);
@@ -78,7 +78,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Kill this worker
-  kill(signal: string): void {
+  kill(signal?: string): void {
     if (
       this.alive &&
       this.process
@@ -93,6 +93,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     if (!this.alive) {
       if (this.socket) {
         this.socket.destroy();
+        this.socket = null;
       }
       this.process = null;
       workerList.remove(this);

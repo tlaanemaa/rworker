@@ -1,4 +1,6 @@
-import { EventEmitter } from 'events';
+// @flow
+
+import EventEmitter from 'events';
 
 const { emit } = EventEmitter.prototype;
 
@@ -10,25 +12,4 @@ export const uid = () => {
 };
 
 // Emit an event on an object
-export const emitOn = (object, name, data) => emit.call(object, name, data);
-
-// Break socket message blobs into messages
-export const forEachMessage = (messages, callback, errorCallback) => {
-  const blocks = messages.split('\n');
-  // Loop over the resulting blocks ignoring the empty ones
-  for (let i = 0, n = blocks.length; i < n; i += 1) {
-    // Extract current block and check it's length
-    let currentBlock = blocks[i].trim();
-    if (currentBlock.length > 0) {
-      // Parse current block to JSON and emit it on worker
-      try {
-        currentBlock = JSON.parse(currentBlock);
-        callback(currentBlock.name, currentBlock.data);
-      } catch (e) {
-        if (typeof errorCallback === 'function') {
-          errorCallback(e);
-        }
-      }
-    }
-  }
-};
+export const emitOn = (object: any, name: string, data: any) => emit.call(object, name, data);

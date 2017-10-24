@@ -1,14 +1,14 @@
 // @flow
 
 import net from 'net';
-import type { Socket } from 'net';
-import handleSocket from './socket_handler';
+import { attachHandlers } from './socket';
+import type { Socket } from './socket';
 
 // A queue for startup events while server is not yet ready
 const startUpQueue = [];
 
 // Check if ip is localhost
-function isValidIP(address: string): boolean {
+function isValidIP(address: any): boolean {
   return (
     address === '127.0.0.1' ||
     address === '::ffff:127.0.0.1'
@@ -22,8 +22,8 @@ const server = net.createServer((socket: Socket) => {
     socket.destroy();
   }
 
-  // Pass socket over to socket handler
-  handleSocket(socket);
+  // Attach event handlers to the socket
+  attachHandlers(socket);
 });
 
 // Clear statup queue after we get ready
