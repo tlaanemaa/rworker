@@ -99,3 +99,6 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     }
   }
 };
+
+// Export r worker type
+export type R = R;
