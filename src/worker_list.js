@@ -14,12 +14,24 @@ class WorkerList {
     return this.workers[uid] || null;
   }
 
+  getAll(): Array<R> {
+    return Object.keys(this.workers).map(workerId => this.workers[workerId]);
+  }
+
   add(worker: R): void {
     this.workers[worker.uid] = worker;
   }
 
   remove(worker: R): void {
     delete this.workers[worker.uid];
+  }
+
+  stopAll() {
+    return Promise.all(this.getAll().map(worker => new Promise((resolve, reject) => {
+      worker.on('exit', () => resolve(null));
+      setTimeout(() => reject(new Error('Worker killing timed out!')), 10000);
+      worker.kill();
+    })));
   }
 }
 

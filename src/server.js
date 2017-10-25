@@ -2,7 +2,11 @@
 
 import net from 'net';
 import type { Socket } from 'net';
-import { attachHandlers } from './socket';
+import { attachHandlers, setEncoding } from './socket';
+
+// List of currently active sockets
+let socketCounter = 0;
+const activeSockets: { [string]: Socket } = {};
 
 // A queue for startup events while server is not yet ready
 const startUpQueue = [];
@@ -22,14 +26,25 @@ const server = net.createServer((socket: Socket) => {
     socket.destroy();
   }
 
+  // Set socket encoding
+  setEncoding(socket);
+
+  // Add the new socket to active sockets list
+  socketCounter += 1;
+  const socketId = `s${socketCounter}`;
+  activeSockets[socketId] = socket;
+
+  // Add close listener to socket so we can remove it once it closes
+  socket.on('close', () => delete activeSockets[socketId]);
+
   // Attach event handlers to the socket
   attachHandlers(socket);
 });
 
 // Clear statup queue after we get ready
 server.on('listening', () => {
-  for (let i = 0, n = startUpQueue.length; i < n; i += 1) {
-    startUpQueue[i]();
+  while (startUpQueue.length > 0) {
+    startUpQueue.shift()();
   }
 });
 
@@ -40,3 +55,12 @@ export const listen = (port: number) => server.listen(port);
 export const whenReady = (callback: () => void) => (
   server.listening ? callback() : startUpQueue.push(callback)
 );
+
+// Stop server
+export const closeServer = (): Promise<void> => new Promise((resolve) => {
+  server.close(() => resolve());
+  Object.keys(activeSockets).forEach((socketId) => {
+    activeSockets[socketId].destroy();
+    delete activeSockets[socketId];
+  });
+});

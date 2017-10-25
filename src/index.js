@@ -1,7 +1,7 @@
 // @flow
 
 import fs from 'fs';
-import { listen } from './server';
+import { listen, closeServer } from './server';
 import worker from './worker';
 import workerList from './worker_list';
 
@@ -16,5 +16,9 @@ export const init = (rScriptPath: string, port: number = 50595) => {
   return worker(rScriptPath, port);
 };
 
-// Get all currently registered workers
 export { workerList };
+
+export const closeAll = () => Promise.all([
+  closeServer(),
+  workerList.stopAll()
+]);

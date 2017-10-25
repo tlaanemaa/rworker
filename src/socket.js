@@ -30,6 +30,9 @@ export const forEachMessage = (
   });
 };
 
+// Set socket encoding
+export const setEncoding = (socket: Socket) => socket.setEncoding('utf8');
+
 // A function to attach relevant handlers to the socket
 export const attachHandlers = (socket: Socket): void => {
   // This socket's worker
@@ -70,7 +73,6 @@ export const attachHandlers = (socket: Socket): void => {
   });
 
   // Attach handlers
-  socket.on('end', destroySocket);
-  socket.on('error', destroySocket);
+  socket.on('close', destroySocket);
   socket.on('data', handleData);
 };

@@ -8,5 +8,8 @@
   ],
   "rules": {
     "comma-dangle": ["error", "never"]
+  },
+  "env": {
+    "jest": true
   }
 }
