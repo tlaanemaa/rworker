@@ -58,7 +58,10 @@ export const whenReady = (callback: () => void) => (
 
 // Stop server
 export const closeServer = (): Promise<void> => new Promise((resolve) => {
-  server.close(() => resolve());
+  server.close(() => {
+    server.unref();
+    resolve();
+  });
   Object.keys(activeSockets).forEach((socketId) => {
     activeSockets[socketId].destroy();
     delete activeSockets[socketId];
