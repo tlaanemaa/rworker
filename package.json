@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "scripts": {
     "build": "babel src/ -d lib && flow-copy-source src lib",
-    "test": "jest"
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "files": [
     "lib"
