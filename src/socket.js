@@ -33,6 +33,8 @@ export const forEachMessage = (
 // A function to attach relevant handlers to the socket
 export const attachHandlers = (socket: Socket): void => {
   // This socket's worker
+  // The alternative is to attach this onto the socket itself but
+  // changing the socket object is undesirable
   let worker: R = null;
 
   // Handler for error and end cases
