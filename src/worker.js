@@ -8,14 +8,21 @@ import type { Socket } from 'net';
 import { uid, emitOn } from './util';
 import workerList from './worker_list';
 import { whenReady } from './server';
+import { writeMessage } from './socket';
 
 const rFilePath = path.resolve('./worker.r');
+
+export type Message = {
+  event: string,
+  data: Array<any>
+};
 
 // New worker class
 export default (rWorkerPath: string, port: number) => class R extends EventEmitter {
   workerFile: string;
   alive: boolean;
   socket: Socket | null;
+  socketQueue: Array<Message>;
   uid: string;
   process: ChildProcess | null;
 
@@ -26,6 +33,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     this.workerFile = workerFile;
     this.alive = true;
     this.socket = null;
+    this.socketQueue = [];
     this.uid = uid();
 
     // Register this worker
@@ -61,11 +69,41 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     });
   }
 
+  // Emit events on the worker
+  emit(event: string, ...args:Array<any>): boolean {
+    // Reject emits if worker is dead
+    if (!this.alive) {
+      return false;
+    }
+
+    // Create data object
+    const message: Message = { event, data: args };
+
+    // If we have a socket then write to it
+    if (this.socket) {
+      writeMessage(this.socket, message);
+    } else {
+      this.socketQueue.push(message);
+    }
+
+    return true;
+  }
+
   // Attach a socket to worker. Only used by socket class to attach itself
   attachSocket(socket: Socket): void {
     if (!this.socket) {
       this.socket = socket;
+      this.flushSocketQueue();
       emitOn(this, 'socket-attached', null);
+    }
+  }
+
+  // Flush socket queue
+  flushSocketQueue(): void {
+    if (this.socket) {
+      while (this.socketQueue.length > 0) {
+        writeMessage(this.socket, this.socketQueue.shift());
+      }
     }
   }
 

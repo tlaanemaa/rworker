@@ -2,7 +2,7 @@
 
 import type { Socket } from 'net';
 import workerList from './worker_list';
-import type { R } from './worker';
+import type { R, Message } from './worker';
 import { emitOn } from './util';
 
 type MessageHandler = (name: string, data: {}) => void;
@@ -76,3 +76,7 @@ export const attachHandlers = (socket: Socket): void => {
   socket.on('close', destroySocket);
   socket.on('data', handleData);
 };
+
+// A helper function to write to the socket
+export const writeMessage = (socket: Socket, message: Message): boolean =>
+  socket.write(`${JSON.stringify(message)}\n`, 'utf8');
