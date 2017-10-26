@@ -1,7 +1,7 @@
 // @flow
 
 import fs from 'fs';
-import { listen, closeServer } from './server';
+import { listen, closeServer } from './socket_server';
 import worker from './worker';
 import workerList from './worker_list';
 
@@ -18,7 +18,7 @@ export const init = (rScriptPath: string, port: number = 50595) => {
 
 export { workerList };
 
-export const closeAll = () => Promise.all([
+export const closeAll = (): Promise<void> => Promise.all([
   closeServer(),
   workerList.stopAll()
-]);
+]).then(() => undefined);

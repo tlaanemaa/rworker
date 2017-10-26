@@ -7,7 +7,7 @@ import type { ChildProcess } from 'child_process';
 import type { Socket } from 'net';
 import { uid, emitOn } from './util';
 import workerList from './worker_list';
-import { whenReady } from './server';
+import { whenReady } from './socket_server';
 import { writeMessage } from './socket';
 
 const rFilePath = path.resolve('./worker.r');
@@ -21,10 +21,12 @@ export type Message = {
 export default (rWorkerPath: string, port: number) => class R extends EventEmitter {
   workerFile: string;
   alive: boolean;
-  socket: Socket | null;
+  socket: null | Socket;
   socketQueue: Array<Message>;
   uid: string;
-  process: ChildProcess | null;
+  process: null | ChildProcess;
+  killTimeout: null | number;
+  exitCallback: null | () => void;
 
   constructor(workerFile: string) {
     super();
@@ -35,6 +37,8 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     this.socket = null;
     this.socketQueue = [];
     this.uid = uid();
+    this.killTimeout = null;
+    this.exitCallback = null;
 
     // Register this worker
     workerList.add(this);
@@ -70,14 +74,14 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Emit events on the worker
-  emit(event: string, ...args:Array<any>): boolean {
+  emit(event: string, ...args:Array<any>) {
     // Reject emits if worker is dead
     if (!this.alive) {
       return false;
     }
 
     // Create data object
-    const message: Message = { event, data: args };
+    const message = { event, data: args };
 
     // If we have a socket then write to it
     if (this.socket) {
@@ -90,7 +94,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Attach a socket to worker. Only used by socket class to attach itself
-  attachSocket(socket: Socket): void {
+  attachSocket(socket: Socket) {
     if (!this.socket) {
       this.socket = socket;
       this.flushSocketQueue();
@@ -99,7 +103,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Flush socket queue
-  flushSocketQueue(): void {
+  flushSocketQueue() {
     if (this.socket) {
       while (this.socketQueue.length > 0) {
         writeMessage(this.socket, this.socketQueue.shift());
@@ -108,7 +112,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Detach socket from worker. Only used by socket class to detach itself
-  detachSocket(): void {
+  detachSocket() {
     if (this.socket) {
       this.socket = null;
       emitOn(this, 'socket-detached', null);
@@ -116,25 +120,52 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
   }
 
   // Kill this worker
-  kill(signal?: string): void {
-    if (
-      this.alive &&
-      this.process
-    ) {
-      this.alive = false;
-      this.process.kill(signal);
-    }
+  kill(signal?: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (
+        this.alive
+      ) {
+        // Set a timeout to handle cases where the worker cant be killed for some reason
+        this.killTimeout = setTimeout(
+          () => reject(new Error('Worker killing timed out!')),
+          10000
+        );
+
+        // Store the resolve function so cleanup method can call it
+        this.exitCallback = resolve;
+
+        // Set the worker to dead state and kill it
+        this.alive = false;
+        if (this.process) {
+          this.process.kill(signal);
+        }
+      } else {
+        // Already dead or no process -> reject
+        reject();
+      }
+    });
   }
 
   // Clean up this worker, used after it has been killed
-  cleanup(): void {
+  cleanup() {
     if (!this.alive) {
+      // Clear the killTimeout
+      clearTimeout(this.killTimeout);
+
+      // Drop the socket if we have one
       if (this.socket) {
         this.socket.destroy();
         this.socket = null;
       }
+
+      // Remove reference to the process and remove this worker from workerlist
       this.process = null;
       workerList.remove(this);
+
+      // Call exitCallback if we have one
+      if (typeof this.exitCallback === 'function') {
+        this.exitCallback();
+      }
     }
   }
 };

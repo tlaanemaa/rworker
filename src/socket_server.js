@@ -5,22 +5,25 @@ import type { Socket } from 'net';
 import { attachHandlers, setEncoding } from './socket';
 
 // List of currently active sockets
-let socketCounter = 0;
+let socketCounter: number = 0;
 const activeSockets: { [string]: Socket } = {};
 
 // A queue for startup events while server is not yet ready
-const startUpQueue = [];
+export const startUpQueue: Array<() => void> = [];
+
+// List of localhost IPs
+const validAddresses: Array<string> = [
+  '127.0.0.1',
+  '::ffff:127.0.0.1',
+  '::1'
+];
 
 // Check if ip is localhost
-function isValidIP(address: any): boolean {
-  return (
-    address === '127.0.0.1' ||
-    address === '::ffff:127.0.0.1'
-  );
-}
+export const isValidIP = (address: any) =>
+  validAddresses.includes(address);
 
 // Create local socket server for communication between R and Node.js
-const server = net.createServer((socket: Socket) => {
+export const server = net.createServer((socket: Socket) => {
   // Kill all connections that are not from localhost
   if (!isValidIP(socket.remoteAddress)) {
     socket.destroy();
@@ -52,8 +55,8 @@ server.on('listening', () => {
 export const listen = (port: number) => server.listen(port);
 
 // Check if server is listening
-export const whenReady = (): Promise<void> =>
-  new Promise(resolve => (server.listening ? resolve() : startUpQueue.push(resolve)));
+export const whenReady = (): Promise<void> => new Promise(resolve =>
+  (server.listening ? resolve() : startUpQueue.push(resolve)));
 
 // Stop server
 export const closeServer = (): Promise<void> => new Promise((resolve) => {

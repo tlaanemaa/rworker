@@ -5,15 +5,12 @@ import workerList from './worker_list';
 import type { R, Message } from './worker';
 import { emitOn } from './util';
 
-type MessageHandler = (name: string, data: {}) => void;
-type ErrorHandler = (err: Error) => void;
-
 // Break socket message strings into individual messages
 export const forEachMessage = (
   messages: string,
-  callback: MessageHandler,
-  errorCallback?: ErrorHandler
-): void => {
+  callback: (name: string, data: {}) => void,
+  errorCallback?: (err: Error) => void
+) => {
   // Split the blocks and loop over them
   messages.split('\n').forEach((message) => {
     if (message.trim().length > 0) {
@@ -34,14 +31,14 @@ export const forEachMessage = (
 export const setEncoding = (socket: Socket) => socket.setEncoding('utf8');
 
 // A function to attach relevant handlers to the socket
-export const attachHandlers = (socket: Socket): void => {
+export const attachHandlers = (socket: Socket) => {
   // This socket's worker
   // The alternative is to attach this onto the socket itself but
   // changing the socket object is undesirable
   let worker: R = null;
 
   // Handler for error and end cases
-  const destroySocket = (): void => {
+  const destroySocket = () => {
     if (worker) {
       worker.detachSocket();
     }
@@ -49,7 +46,7 @@ export const attachHandlers = (socket: Socket): void => {
   };
 
   // Handler for data
-  const handleData = (dataString): void => forEachMessage(dataString, (name: string, data: any) => {
+  const handleData = dataString => forEachMessage(dataString, (name: string, data: any) => {
     if (worker) {
       // If this socket does have a worker, raise the msaage as an event on it
       emitOn(worker, name, data);
@@ -78,5 +75,5 @@ export const attachHandlers = (socket: Socket): void => {
 };
 
 // A helper function to write to the socket
-export const writeMessage = (socket: Socket, message: Message): boolean =>
+export const writeMessage = (socket: Socket, message: Message) =>
   socket.write(`${JSON.stringify(message)}\n`, 'utf8');
