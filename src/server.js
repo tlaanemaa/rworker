@@ -52,9 +52,8 @@ server.on('listening', () => {
 export const listen = (port: number) => server.listen(port);
 
 // Check if server is listening
-export const whenReady = (callback: () => void) => (
-  server.listening ? callback() : startUpQueue.push(callback)
-);
+export const whenReady = (): Promise<void> =>
+  new Promise(resolve => (server.listening ? resolve() : startUpQueue.push(resolve)));
 
 // Stop server
 export const closeServer = (): Promise<void> => new Promise((resolve) => {

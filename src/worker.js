@@ -32,7 +32,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     workerList.add(this);
 
     // Wait for the server to get ready
-    whenReady(() => {
+    whenReady().then(() => {
       // Start child process
       this.process = spawn(rWorkerPath, [rFilePath, workerFile, this.uid, String(port)]);
 
