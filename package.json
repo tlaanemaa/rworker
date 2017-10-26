@@ -1,19 +1,8 @@
 {
   "name": "rworker",
   "version": "1.0.0",
-  "description": "",
-  "main": "lib/index.js",
-  "scripts": {
-    "build": "babel src/ -d lib --copy-files && flow-copy-source src lib",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "flow": "flow"
-  },
-  "files": [
-    "lib"
-  ],
-  "author": "",
-  "license": "ISC",
+  "description": "A bidirectional communication layer between Node.JS and R",
+  "main": "index.js",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.0",
@@ -27,5 +16,28 @@
     "flow-bin": "^0.56.0",
     "flow-copy-source": "^1.2.1",
     "jest": "^21.2.1"
-  }
+  },
+  "scripts": {
+    "build": "babel src/ -d lib --copy-files && flow-copy-source src lib",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "flow": "flow"
+  },
+  "files": [
+    "lib"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlaanemaa/rworker.git"
+  },
+  "keywords": [
+    "R",
+    "worker"
+  ],
+  "author": "Taavi Laanemaa",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tlaanemaa/rworker/issues"
+  },
+  "homepage": "https://github.com/tlaanemaa/rworker#readme"
 }
