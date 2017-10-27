@@ -2,7 +2,7 @@
 
 import type { Socket } from 'net';
 import workerList from './worker_list';
-import type { R, Message } from './worker';
+import type { Message } from './worker';
 import { emitOn } from './util';
 
 // Break socket message strings into individual messages
@@ -35,18 +35,21 @@ export const attachHandlers = (socket: Socket) => {
   // This socket's worker
   // The alternative is to attach this onto the socket itself but
   // changing the socket object is undesirable
-  let worker: R = null;
+  let worker = null;
 
-  // Handler for error and end cases
-  const destroySocket = () => {
+  // Attach socket close handler that will detach the socket
+  // from its worker and then destroy it
+  socket.on('close', () => {
     if (worker) {
       worker.detachSocket();
     }
     socket.destroy();
-  };
+  });
 
-  // Handler for data
-  const handleData = dataString => forEachMessage(dataString, (name: string, data: any) => {
+  // Attach socket data handler that will parse the received data and then
+  // emit relevant messages on the worker
+  // It also handles socket identification and destroys unidentified sockets
+  socket.on('data', dataString => forEachMessage(dataString, (name: string, data: any) => {
     if (worker) {
       // If this socket does have a worker, raise the msaage as an event on it
       emitOn(worker, name, data);
@@ -67,11 +70,7 @@ export const attachHandlers = (socket: Socket) => {
       // Destroy all unknown sockets that arent trying to identify
       socket.destroy();
     }
-  });
-
-  // Attach handlers
-  socket.on('close', destroySocket);
-  socket.on('data', handleData);
+  }));
 };
 
 // A helper function to write to the socket
