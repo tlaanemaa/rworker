@@ -1,5 +1,5 @@
 const net = require('net');
-const socketServer = require('../lib/socket_server');
+const socketServer = require('../src/socket_server');
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 

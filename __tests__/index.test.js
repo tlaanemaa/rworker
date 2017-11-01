@@ -1,4 +1,4 @@
-const rw = require('../lib');
+const rw = require('../src');
 
 const mockExecutable = './__tests__/mock_executable.sh';
 
