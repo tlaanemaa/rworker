@@ -1,6 +1,7 @@
 const rw = require('../src');
 
-const mockExecutable = './__tests__/mock_executable.sh';
+// TODO: Figure out why this file path has to be writen differently
+const mockExecutable = './__mocks__/rScript.sh';
 
 afterAll(() => rw.closeAll());
 

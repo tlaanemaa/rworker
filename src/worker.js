@@ -32,7 +32,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     super();
 
     // Initial setup
-    this.workerFile = workerFile;
+    this.workerFile = path.resolve(workerFile);
     this.alive = true;
     this.socket = null;
     this.socketQueue = [];
@@ -46,7 +46,7 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
     // Wait for the server to get ready
     whenReady().then(() => {
       // Start child process
-      this.process = spawn(rWorkerPath, [rFilePath, workerFile, this.uid, String(port)]);
+      this.process = spawn(rWorkerPath, [rFilePath, this.workerFile, this.uid, String(port)]);
 
       // Set process events (all this weird if stuff is to make flow happy)
       if (this.process) {
