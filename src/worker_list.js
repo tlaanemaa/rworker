@@ -27,7 +27,7 @@ class WorkerList {
   }
 
   stopAll(): Promise<void> {
-    return Promise.all(this.getAll.map(worker =>
+    return Promise.all(this.getAll().map(worker =>
       worker.kill()))
       .then(() => undefined);
   }

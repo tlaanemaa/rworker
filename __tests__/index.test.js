@@ -28,3 +28,10 @@ describe('Init function', () => {
     expect(worker.constructor.name).toBe('R');
   });
 });
+
+describe('closeAll function', () => {
+  test('should run', () => {
+    const { closeAll } = rw;
+    return closeAll().then(result => expect(typeof result).toBe('undefined'));
+  });
+});
