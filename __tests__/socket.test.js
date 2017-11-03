@@ -3,11 +3,21 @@ import MockSocket from '../__mocks__/socket';
 
 describe('forEachMessage function', () => {
   const mockMessage = '{"name": "msg1", "data": "data1"}\n{"name": "msg2", "data": "data2"}';
+  const mockBadMessage = '{"name" "msg1", "data": "data1"}\n{"name": "msg2", "data": "data2"}';
 
   test('should call callback for each message line', () => {
     const func = jest.fn();
     forEachMessage(mockMessage, func);
     expect(func).toHaveBeenCalledTimes(2);
+  });
+
+  test('should trigger errorCallback on error', () => {
+    const func = jest.fn();
+    const errorFunc = jest.fn();
+    forEachMessage(mockBadMessage, func, errorFunc);
+
+    expect(func).toHaveBeenCalledTimes(1);
+    expect(errorFunc).toHaveBeenCalledTimes(1);
   });
 });
 
