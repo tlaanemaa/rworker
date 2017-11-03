@@ -21,12 +21,12 @@ describe('Init function', () => {
   });
 
   test('should return a constructor for R object', () => {
+    // TODO: Improve this test once we have tests on worker file
     const R = rw.init(mockExecutable);
     expect(typeof R).toBe('function');
 
-    const worker = new R();
-    expect(typeof worker).toBe('object');
-    expect(worker.constructor.name).toBe('R');
+    const worker = new R('');
+    expect(worker).toBeInstanceOf(R);
   });
 });
 
