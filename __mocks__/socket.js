@@ -5,10 +5,15 @@ export default class MockSocket extends EventEmitter {
     super();
 
     this.encoding = null;
+    this.dead = false;
   }
 
   setEncoding(value) {
     this.encoding = value;
+  }
+
+  destroy() {
+    this.dead = true;
   }
 
   static write(message, encoding) {
