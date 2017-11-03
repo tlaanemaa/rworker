@@ -26,7 +26,7 @@ class WorkerList {
     delete this.workers[worker.uid];
   }
 
-  stopAll(): Promise<void> {
+  killAll(): Promise<void> {
     return Promise.all(this.getAll().map(worker =>
       worker.kill()))
       .then(() => undefined);

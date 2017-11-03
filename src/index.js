@@ -24,5 +24,5 @@ export { workerList };
 
 export const closeAll = (): Promise<void> => Promise.all([
   closeServer(),
-  workerList.stopAll()
+  workerList.killAll()
 ]).then(() => undefined);
