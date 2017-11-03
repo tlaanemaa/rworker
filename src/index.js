@@ -17,7 +17,7 @@ export const init = (rScriptPath: string, port: number = 50595) => {
   listen(port);
 
   // Return worker class
-  return worker(rScriptPath, port);
+  return worker(resolvedRScriptPath, port);
 };
 
 export { workerList };
