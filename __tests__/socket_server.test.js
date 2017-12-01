@@ -1,8 +1,8 @@
 import net from 'net';
 import {
   isValidIP,
-  startUpQueue,
   whenReady,
+  startUpQueue,
   listen,
   server,
   closeServer
@@ -43,6 +43,6 @@ describe('server', () => {
   });
 });
 
-describe('close server function', () => {
+describe('closeServer function', () => {
 
 });
