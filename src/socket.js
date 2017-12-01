@@ -51,7 +51,7 @@ export const attachHandlers = (socket: Socket) => {
   // It also handles socket identification and destroys unidentified sockets
   socket.on('data', dataString => forEachMessage(dataString, (name: string, data: any) => {
     if (worker) {
-      // If this socket does have a worker, raise the msaage as an event on it
+      // If this socket does have a worker, raise the message as an event on it
       emitOn(worker, name, data);
     } else if (
       !worker &&
