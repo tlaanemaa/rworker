@@ -2,6 +2,7 @@ import { closeAll, workerList, init } from '../src';
 
 // TODO: Figure out why this file path has to be writen differently
 const mockExecutable = './__mocks__/rScript.sh';
+const mockWorkerFile = './__mocks__/workerFile.r';
 
 afterAll(() => closeAll());
 
@@ -25,7 +26,7 @@ describe('Init function', () => {
     const Worker = init(mockExecutable);
     expect(typeof Worker).toBe('function');
 
-    const worker = new Worker('');
+    const worker = new Worker(mockWorkerFile);
     expect(worker).toBeInstanceOf(Worker);
   });
 });
