@@ -22,8 +22,8 @@ const validAddresses: Array<string> = [
 export const isValidIP = (address: any) =>
   validAddresses.includes(address);
 
-// Create local socket server for communication between R and Node.js
-export const server = net.createServer((socket: Socket) => {
+// Socket server listener function
+export const connectionListener = (socket: Socket) => {
   // Kill all connections that are not from localhost
   if (!isValidIP(socket.remoteAddress)) {
     socket.destroy();
@@ -42,7 +42,10 @@ export const server = net.createServer((socket: Socket) => {
 
   // Attach event handlers to the socket
   attachHandlers(socket);
-});
+};
+
+// Create local socket server for communication between R and Node.js
+export const server = net.createServer(connectionListener);
 
 // Clear statup queue after we get ready
 server.on('listening', () => {
