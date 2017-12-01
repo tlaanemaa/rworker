@@ -72,11 +72,11 @@ describe('server', () => {
     expect(server instanceof net.Server).toBe(true);
   });
 
-  test('should flush queue when started', (done) => {
-    const callback = () => done();
-    whenReady().then(callback);
+  test('should flush queue when started', () => {
+    const func = jest.fn();
+    whenReady().then(func);
     listen(54321);
-    return wait(2000).then(() => expect(callback).toHaveBeenCalled());
+    return wait(2000).then(() => expect(func).toHaveBeenCalledTimes(1));
   });
 });
 
