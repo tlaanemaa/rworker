@@ -2,6 +2,7 @@
 
 import EventEmitter from 'events';
 import path from 'path';
+import fs from 'fs';
 import { spawn } from 'child_process';
 import type { ChildProcess } from 'child_process';
 import type { Socket } from 'net';
@@ -33,6 +34,10 @@ export default (rWorkerPath: string, port: number) => class Worker extends Event
 
     // Initial setup
     this.workerFile = path.resolve(workerFile);
+
+    // Check if given workerFile exists
+    fs.accessSync(workerFile, fs.constants.R_OK);
+
     this.alive = true;
     this.socket = null;
     this.socketQueue = [];
