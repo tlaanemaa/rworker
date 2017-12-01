@@ -18,7 +18,7 @@ export type Message = {
 };
 
 // New worker class
-export default (rWorkerPath: string, port: number) => class R extends EventEmitter {
+export default (rWorkerPath: string, port: number) => class Worker extends EventEmitter {
   workerFile: string;
   alive: boolean;
   socket: null | Socket;
@@ -171,4 +171,4 @@ export default (rWorkerPath: string, port: number) => class R extends EventEmitt
 };
 
 // Export r worker type
-export type R = R;
+export type Worker = Worker;

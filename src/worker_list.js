@@ -1,10 +1,10 @@
 // @flow
 
-import type { R } from './worker';
+import type { Worker } from './worker';
 
 // Workerlist class
 class WorkerList {
-  workers: { [string]: R };
+  workers: { [string]: Worker };
 
   constructor() {
     this.workers = {};
@@ -18,11 +18,11 @@ class WorkerList {
     return Object.keys(this.workers).map(workerId => this.workers[workerId]);
   }
 
-  add(worker: R) {
+  add(worker: Worker) {
     this.workers[worker.uid] = worker;
   }
 
-  remove(worker: R) {
+  remove(worker: Worker) {
     delete this.workers[worker.uid];
   }
 
