@@ -28,11 +28,7 @@ describe('whenReady function', () => {
 });
 
 describe('server', () => {
-  const {
-    server,
-    whenReady,
-    listen
-  } = socketServer;
+  const { server, whenReady, listen } = socketServer;
 
   test('should be instance of net server class', () => {
     expect(server instanceof net.Server).toBe(true);
