@@ -1,13 +1,18 @@
-const net = require('net');
-const socketServer = require('../src/socket_server');
+import net from 'net';
+import {
+  isValidIP,
+  startUpQueue,
+  whenReady,
+  listen,
+  server,
+  closeServer
+} from '../src/socket_server';
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-afterAll(() => socketServer.closeServer());
+afterAll(() => closeServer());
 
 describe('validIP function', () => {
-  const { isValidIP } = socketServer;
-
   test('should return false', () => {
     expect(isValidIP('192.168.1.1')).toBe(false);
   });
@@ -18,8 +23,6 @@ describe('validIP function', () => {
 });
 
 describe('whenReady function', () => {
-  const { startUpQueue, whenReady } = socketServer;
-
   test('should add messages to startupQueue', () => {
     expect(startUpQueue.length).toBe(0);
     whenReady();
@@ -28,8 +31,6 @@ describe('whenReady function', () => {
 });
 
 describe('server', () => {
-  const { server, whenReady, listen } = socketServer;
-
   test('should be instance of net server class', () => {
     expect(server instanceof net.Server).toBe(true);
   });
