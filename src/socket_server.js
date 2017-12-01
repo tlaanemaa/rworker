@@ -6,7 +6,7 @@ import { attachHandlers, setEncoding } from './socket';
 
 // List of currently active sockets
 let socketCounter: number = 0;
-const activeSockets: { [string]: Socket } = {};
+export const activeSockets: { [string]: Socket } = {};
 
 // A queue for startup events while server is not yet ready
 export const startUpQueue: Array<() => void> = [];

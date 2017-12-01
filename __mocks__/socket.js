@@ -6,6 +6,7 @@ export default class MockSocket extends EventEmitter {
 
     this.encoding = null;
     this.dead = false;
+    this.remoteAddress = '::1';
   }
 
   setEncoding(value) {
