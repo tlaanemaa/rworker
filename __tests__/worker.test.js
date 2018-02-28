@@ -127,11 +127,12 @@ describe('cleanup', () => {
   });
 
   test('should destroy and detach sockets', () => {
+    const socket = new MockSocket();
+    socket.destroy = jest.fn();
     worker.alive = false;
-    worker.socket = new MockSocket();
-    worker.socket.destroy = jest.fn();
+    worker.socket = socket;
     worker.cleanup();
-    expect(worker.socket.destroy).toHaveBeenCalledTimes(1);
+    expect(socket.destroy).toHaveBeenCalledTimes(1);
     expect(worker.socket).toBe(null);
   });
 });
