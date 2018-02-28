@@ -116,3 +116,22 @@ describe('kill', () => {
       .then(result => expect(result).toBe('failed'));
   });
 });
+
+describe('cleanup', () => {
+  const worker = new Worker(mockExecutable);
+
+  test('should fail silently if worker is still alive', () => {
+    const testFn = () => worker.cleanup();
+    worker.alive = true;
+    expect(testFn).not.toThrow();
+  });
+
+  test('should destroy and detach sockets', () => {
+    worker.alive = false;
+    worker.socket = new MockSocket();
+    worker.socket.destroy = jest.fn();
+    worker.cleanup();
+    expect(worker.socket.destroy).toHaveBeenCalledTimes(1);
+    expect(worker.socket).toBe(null);
+  });
+});
