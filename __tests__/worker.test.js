@@ -78,3 +78,20 @@ describe('flushSocketQueue', () => {
     expect(testFn).not.toThrow();
   });
 });
+
+describe('detachSocket', () => {
+  const worker = new Worker(mockExecutable);
+  const socket = new MockSocket();
+
+  test('removes socket if one exists', () => {
+    worker.socket = socket;
+    worker.detachSocket();
+    expect(worker.socket).toBe(null);
+  });
+
+  test('should fail silently', () => {
+    const testFn = () => worker.detachSocket();
+    worker.socket = null;
+    expect(testFn).not.toThrow();
+  });
+});
