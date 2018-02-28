@@ -125,7 +125,7 @@ export default (rWorkerPath: string, port: number) => class Worker extends Event
   }
 
   // Kill this worker
-  kill(signal?: string): Promise<void> {
+  kill(signal?: string, timeout: number = 10000): Promise<void> {
     return new Promise((resolve, reject) => {
       if (
         this.alive
@@ -133,7 +133,7 @@ export default (rWorkerPath: string, port: number) => class Worker extends Event
         // Set a timeout to handle cases where the worker cant be killed for some reason
         this.killTimeout = setTimeout(
           () => reject(new Error('Worker killing timed out!')),
-          10000
+          timeout
         );
 
         // Store the resolve function so cleanup method can call it

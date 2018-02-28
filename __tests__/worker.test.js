@@ -95,3 +95,24 @@ describe('detachSocket', () => {
     expect(testFn).not.toThrow();
   });
 });
+
+describe('kill', () => {
+  const worker = new Worker(mockExecutable);
+
+  test('should fail silently if worker is no longer alive', () => {
+    worker.alive = false;
+    return worker.kill()
+      .then(() => 'worked')
+      .catch(() => 'failed')
+      .then(result => expect(result).toBe('failed'));
+  });
+
+  test('should trigger timeout if cleanup doesnt run in time', () => {
+    worker.process = null;
+    worker.alive = true;
+    return worker.kill('sig', 100)
+      .then(() => 'worked')
+      .catch(() => 'failed')
+      .then(result => expect(result).toBe('failed'));
+  });
+});
