@@ -46,3 +46,35 @@ describe('emit', () => {
     expect(socket.write).toHaveBeenCalledWith('{"event":"name","data":[1,2,3]}\n', 'utf8');
   });
 });
+
+describe('attachSocket', () => {
+  const worker = new Worker(mockExecutable);
+  const socket = new MockSocket();
+
+  test('should only add a socket if one isnt present yet', () => {
+    worker.socket = 'placeholder';
+    worker.attachSocket(socket);
+    expect(worker.socket).toBe('placeholder');
+  });
+});
+
+describe('flushSocketQueue', () => {
+  const worker = new Worker(mockExecutable);
+  const socket = new MockSocket();
+
+  test('should flush queued messages when a socket is added', () => {
+    expect(worker.socketQueue.length).toBe(0);
+    worker.emit('name', 1, 2, 3);
+    expect(worker.socketQueue.length).toBe(1);
+    socket.write = jest.fn();
+    worker.attachSocket(socket);
+    expect(socket.write).toHaveBeenCalledTimes(1);
+    expect(socket.write).toHaveBeenCalledWith('{"event":"name","data":[1,2,3]}\n', 'utf8');
+  });
+
+  test('should fail silently', () => {
+    const testFn = () => worker.flushSocketQueue();
+    worker.socket = null;
+    expect(testFn).not.toThrow();
+  });
+});
