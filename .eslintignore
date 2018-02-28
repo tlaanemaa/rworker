@@ -1,2 +1,5 @@
 # Built code
 lib/
+
+# Coverage files
+coverage/

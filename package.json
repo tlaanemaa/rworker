@@ -21,7 +21,8 @@
     "build": "babel src/ -d lib --copy-files && flow-copy-source src lib",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "flow": "flow"
+    "flow": "flow",
+    "eslint": "eslint ."
   },
   "files": [
     "lib"
