@@ -1,6 +1,9 @@
 import init from '../src/worker';
 import MockSocket from '../__mocks__/socket';
 
+jest.mock('child_process');
+jest.mock('../src/socket_server');
+
 const mockExecutable = './__mocks__/rScript.sh';
 const Worker = init(mockExecutable);
 
@@ -13,6 +16,12 @@ describe('Worker', () => {
   test('should initialize', () => {
     const worker = new Worker(mockExecutable);
     expect(worker).toBeInstanceOf(Worker);
+  });
+
+  test('should fail silently when spawn returns null', () => {
+    const worker = new Worker(mockExecutable);
+    expect(worker).toBeInstanceOf(Worker);
+    expect(worker.process).toBe(null);
   });
 });
 

@@ -42,6 +42,7 @@ export default (rWorkerPath: string, port: number) => class Worker extends Event
     this.socket = null;
     this.socketQueue = [];
     this.uid = uid();
+    this.process = null;
     this.killTimeout = null;
     this.exitCallback = null;
 
